@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <context:property-placeholder location="classpath:resource.properties" />
+
+    <!-- 扫描包结构，自动注入bean
+        此处因为use-default-filters="false",false导致事务不起作用，
+        因此扫描controller和其他注解应该分开-->
+    <!-- 定义只扫描controller的包 -->
+    <context:component-scan base-package="com.tiger.**.controller" use-default-filters="false">
+        <!-- 配合use-default-filters="false"，只扫描@Controller注解 -->
+        <context:include-filter type="annotation"
+                                expression="org.springframework.stereotype.Controller" />
+        <!-- 配合use-default-filters="false"，只扫描@ControllerAdvice注解 -->
+        <context:include-filter type="annotation"
+                                expression="org.springframework.web.bind.annotation.ControllerAdvice" />
+        <!-- 配合use-default-filters="false"，只扫描@Configuration注解 -->
+        <context:include-filter type="annotation"
+                                expression="org.springframework.context.annotation.Configuration" />
+    </context:component-scan>
+
+    <!-- 定义扫描除controller之外的包 -->
+    <context:component-scan base-package="com.tiger">
+        <!-- 排除@Controller注解的类,其余转为bean -->
+        <context:exclude-filter type="annotation"
+                                expression="org.springframework.stereotype.Controller" />
+        <!-- 排除@ControllerAdvice注解类，其余转为bean -->
+        <context:exclude-filter type="annotation"
+                                expression="org.springframework.web.bind.annotation.ControllerAdvice" />
+    </context:component-scan>
+
+    <!-- 扫描controller中的注解 -->
+    <mvc:annotation-driven />
+
+    <!-- spring mvc的视图解析器 -->
+    <bean id="defaultViewResolver"
+          class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="viewClass"
+                  value="org.springframework.web.servlet.view.JstlView" />
+        <property name="contentType" value="text/html" />
+        <property name="prefix" value="/" />
+        <property name="suffix" value=".jsp" />
+    </bean>
+
+    <!-- 开启异步任务支持 -->
+    <!--<task:annotation-driven />-->
+
+
+    <!-- 配置数据源 -->
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="${database_dialect}"></property>
+        <property name="url" value="${connection.url}"></property>
+        <property name="username" value="${connection.username}"></property>
+        <property name="password" value="${connection.password}"></property>
+    </bean>
+
+    <!-- myBatis xml mapper文件配置 -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource" />
+        <!-- 自动扫描entity目录, 省掉Configuration.xml里的手工配置 -->
+        <property name="mapperLocations" value="classpath*:com/tiger/**/dao/mapping/*.xml" />
+    </bean>
+
+    <!-- mybatis MapperScanner配置 -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!-- 自动注入dao包下的所有mapper为MapperFactoryBean-->
+        <property name="basePackage" value="com.tiger.**.dao" />
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
+    </bean>
+
+</beans>
