@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tiger.kxz.dao.UserMapper">
+    <resultMap id="BaseResultMap" type="com.tiger.kxz.entity.User">
+        <id column="ID" property="ID" jdbcType="BIGINT"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="loginName" property="loginName" jdbcType="VARCHAR"/>
+        <result column="loginPassWord" property="loginPassWord" jdbcType="VARCHAR"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    ID, name, loginName, loginPassWord
+  </sql>
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long">
+        select
+        <include refid="Base_Column_List"/>
+        from user
+        where ID = #{ID,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from user
+    where ID = #{ID,jdbcType=BIGINT}
+  </delete>
+    <insert id="insert" parameterType="com.tiger.kxz.entity.User">
+    insert into user (ID, name, loginName, 
+      loginPassWord)
+    values (#{ID,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{loginName,jdbcType=VARCHAR}, 
+      #{loginPassWord,jdbcType=VARCHAR})
+  </insert>
+    <insert id="insertSelective" parameterType="com.tiger.kxz.entity.User">
+        insert into user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="ID != null">
+                ID,
+            </if>
+            <if test="name != null">
+                name,
+            </if>
+            <if test="loginName != null">
+                loginName,
+            </if>
+            <if test="loginPassWord != null">
+                loginPassWord,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="ID != null">
+                #{ID,jdbcType=BIGINT},
+            </if>
+            <if test="name != null">
+                #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="loginName != null">
+                #{loginName,jdbcType=VARCHAR},
+            </if>
+            <if test="loginPassWord != null">
+                #{loginPassWord,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.tiger.kxz.entity.User">
+        update user
+        <set>
+            <if test="name != null">
+                name = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="loginName != null">
+                loginName = #{loginName,jdbcType=VARCHAR},
+            </if>
+            <if test="loginPassWord != null">
+                loginPassWord = #{loginPassWord,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where ID = #{ID,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.tiger.kxz.entity.User">
+    update user
+    set name = #{name,jdbcType=VARCHAR},
+      loginName = #{loginName,jdbcType=VARCHAR},
+      loginPassWord = #{loginPassWord,jdbcType=VARCHAR}
+    where ID = #{ID,jdbcType=BIGINT}
+  </update>
+</mapper>
